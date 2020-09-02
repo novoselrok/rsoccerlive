@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  client-prod:
+    container_name: client-prod
+    build: ./client
+    command: npm run build
+    user: ${CURRENT_UID}
+    volumes:
+      - './client:/app'
+      - '/app/node_modules'
+
+  api-prod:
+    container_name: api-prod
+    build: .
+    network_mode: 'host'

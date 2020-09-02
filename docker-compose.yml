@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  client-dev:
+    container_name: client-dev
+    build: ./client
+    command: npm run serve-dev
+    volumes:
+      - './client:/app'
+      - '/app/node_modules'
+    ports:
+      - '8080:8080'
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+  api-dev:
+    container_name: api-dev
+    build:
+      context: .
+      target: build
+    volumes:
+      - '.:/app'
+    command: go run ./src
+    network_mode: 'host'

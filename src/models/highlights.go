@@ -18,35 +18,36 @@ type Highlight struct {
 	NumMirrors         int64     `json:"numMirrors" db:"num_mirrors"`
 }
 
+const (
+	highlightSelectFields = "id, url, title, created_at, reddit_submission_id, reddit_permalink, reddit_author, reddit_created_at, (select COUNT(*) from highlight_mirrors where highlight_id = highlights.id) as num_mirrors"
+)
+
 func (db *DB) GetHighlight(highlightID string) (Highlight, error) {
 	highlight := Highlight{}
-	highlightQuery := `
-		SELECT id, url, title, created_at, reddit_submission_id, reddit_permalink, reddit_author, reddit_created_at,
-			(select COUNT(*) from highlight_mirrors where highlight_id = highlights.id) as num_mirrors
+	highlightQuery := fmt.Sprintf(`
+		SELECT %s
 		FROM highlights
-		WHERE id = $1`
+		WHERE id = $1`, highlightSelectFields)
 	err := db.Get(&highlight, highlightQuery, highlightID)
 	return highlight, err
 }
 
 func (db *DB) GetDayHighlights(timestamp time.Time) ([]Highlight, error) {
 	highlights := []Highlight{}
-	dayHighlightsQuery := `
-		SELECT id, url, title, created_at, reddit_submission_id, reddit_permalink, reddit_author, reddit_created_at,
-			(select COUNT(*) from highlight_mirrors where highlight_id = highlights.id) as num_mirrors
+	dayHighlightsQuery := fmt.Sprintf(`
+		SELECT %s
 		FROM highlights
-		WHERE reddit_created_at::date = $1::date`
+		WHERE reddit_created_at::date = $1::date`, highlightSelectFields)
 	err := db.Select(&highlights, dayHighlightsQuery, timestamp)
 	return highlights, err
 }
 
 func (db *DB) GetHighlightsAfterTimestamp(timestamp time.Time) ([]Highlight, error) {
 	highlights := []Highlight{}
-	highlightsAfterTimestampQuery := `
-		SELECT id, url, title, created_at, reddit_submission_id, reddit_permalink, reddit_author, reddit_created_at,
-			(select COUNT(*) from highlight_mirrors where highlight_id = highlights.id) as num_mirrors
+	highlightsAfterTimestampQuery := fmt.Sprintf(`
+		SELECT %s
 		FROM highlights
-		WHERE reddit_created_at > $1`
+		WHERE reddit_created_at > $1`, highlightSelectFields)
 	err := db.Select(&highlights, highlightsAfterTimestampQuery, timestamp)
 	return highlights, err
 }

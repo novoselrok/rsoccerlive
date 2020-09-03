@@ -1,4 +1,4 @@
-package main
+package highlights
 
 import (
 	"testing"
@@ -12,6 +12,8 @@ func TestMatchingHighlightTitles(t *testing.T) {
 		"Atalanta 1-[2] Paris Saint-Germain: Choupo-Moting goal 90+3'",
 		"Orlando City 2-0 Minnesota United - Nani 42’ (great goal!)",
 		"Barcelona 0-1 Bayern Munich: Thomas Muller goal 4'",
+		"RB Leipzig [2]-1 Atletico Madrid: Tyler Adams goal 88'",
+		"Benfica (1) - 1 Braga - Vinicius 56'",
 	}
 
 	for _, title := range titles {

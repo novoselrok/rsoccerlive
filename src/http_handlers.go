@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/novoselrok/rsoccerlive/src/websockethub"
+	log "github.com/sirupsen/logrus"
 )
 
 func (app *App) dayHighlightsAPIHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,4 +44,14 @@ func (app *App) highlightMirrorsAPIHandler(w http.ResponseWriter, r *http.Reques
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(highlightMirrors)
+}
+
+func (app *App) websocketUpgradeHandler(w http.ResponseWriter, r *http.Request) {
+	conn, err := app.wsUpgrader.Upgrade(w, r, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Info("New websocket client connected")
+	app.hub.RegisterClient(&websockethub.Client{conn})
 }

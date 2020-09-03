@@ -74,6 +74,7 @@ export default {
   &__mirrors-title {
     font-size: 20px;
     margin-bottom: 16px;
+    color: white;
   }
 
   &__mirrors-list {

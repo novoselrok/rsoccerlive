@@ -16,38 +16,60 @@
           <circle class="blinking" cx="89.5" cy="14.5" r="13.5" fill="#FF0000"/>
         </svg>
       </div>
+      <div class="app__header__new-highlights" v-show="getNewHighlightIds.length > 0" @click="addNewHighlights">
+        <svg class="app__header__new-highlights__refresh-icon" viewBox="0 0 512 512" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+          <path fill="white" d="M61.496 279.61C60.508 271.374 60 263.194 60 256c0-107.402 88.598-196 196-196 50.098 0 97 20.2 131.5 51.7l-17.3 17.6c-3.9 3.9-5.4 9.598-3.9 15 1.802 5.098 6 9 11.4 10.2 3.019.605 102.214 32.57 95.898 31.3 8.035 2.677 19.918-5.894 17.703-17.698-.61-3.024-22.57-113.215-21.301-106.903-1.2-5.398-5.102-9.898-10.5-11.398-5.098-1.5-10.8 0-14.7 3.898l-14.698 14.399C384.8 25.8 322.598 0 256 0 115.3 0 0 115.3 0 256v.598c0 8.457.387 14.992.836 19.992a14.999 14.999 0 0012.004 13.36l30.816 6.16c10.032 2.007 19.051-6.403 17.84-16.5zm0 0M499.25 222.027l-30.906-6.297c-10.043-2.046-19.125 6.372-17.89 16.516C451.523 241 452 249.512 452 256c0 107.398-88.598 196-196 196-50.098 0-97-20.2-131.5-52l17.3-17.3c3.9-3.9 5.4-9.598 3.9-15-1.802-5.102-6-9-11.4-10.2-3.019-.61-102.214-32.57-95.898-31.3-5.101-.9-10.203.6-13.5 4.198-3.601 3.301-5.101 8.7-4.203 13.5.61 3.02 22.574 112.211 21.305 105.899 1.195 5.402 5.098 9.902 10.496 11.398 6.262 1.57 11.488-.328 14.7-3.898l14.402-14.399C126.898 485.2 189.102 512 256 512c140.7 0 256-115.3 256-256v-.902c0-6.649-.242-13.176-.797-19.664a14.994 14.994 0 00-11.953-13.407zm0 0"/>
+        </svg>
+        <span>{{ getNewHighlightIds.length }} new highlights</span>
+      </div>
     </div>
-    <router-view />
+    <div class="app__content">
+      <router-view />
+    </div>
   </div>
 </template>
 
 
 <script>
+import { mapActions, mapGetters } from 'vuex'
+import WebSocketClient from './websocket_client.js'
+
 export default {
   computed: {
+    ...mapGetters(['getNewHighlightIds']),
     isBackVisible () {
       return this.$route.name === 'highlight'
     },
   },
   methods: {
+    ...mapActions(['addWebSocketEvent', 'addNewHighlights']),
     goBack () {
       if (window.history.length > 2) {
         this.$router.go(-1)
       } else {
         this.$router.push({ name: 'highlights' })
       }
-    }
-  }
+    },
+  },
+  mounted () {
+    new WebSocketClient(process.env.VUE_APP_RSOCCERLIVE_WS_URL, this.addWebSocketEvent)
+  },
 }
 </script>
 
 <style scoped lang="less">
 .app {
-  padding: 16px;
+  &__content {
+    padding: 0 16px;
+  }
 
   &__header {
+    position: sticky;
+    top: 0;
+    padding: 16px;
+    z-index: 9999;
     display: flex;
-    margin-bottom: 16px;
+    background-color: #31a05f;
     color: white;
 
     &__back {
@@ -60,6 +82,21 @@ export default {
     &__title {
       font-size: 32px;
       margin-right: 8px;
+    }
+
+    &__new-highlights {
+      display: flex;
+      align-items: center;
+      margin-left: 16px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 5px;
+      background-color: black;
+      color: white;
+
+      &__refresh-icon {
+        margin-right: 8px;
+      }
     }
   }
 

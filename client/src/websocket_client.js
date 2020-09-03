@@ -23,6 +23,7 @@ export default class WebSocketClient {
   }
 
   _reconnect() {
+    // eslint-disable-next-line
     console.log('WebSocket reconnecting')
     this.ws.removeEventListener('message', this._onMessage)
     this.ws.removeEventListener('error', this._onError)
@@ -40,6 +41,7 @@ export default class WebSocketClient {
   }
 
   _onError (e) {
+    // eslint-disable-next-line
     console.error('WebSocket error', e)
     this.ws.close()
   }

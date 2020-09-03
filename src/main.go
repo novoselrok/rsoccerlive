@@ -63,7 +63,7 @@ func main() {
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "OPTIONS"})
 
 	router := mux.NewRouter()
-	router.HandleFunc("/ws", app.websocketUpgradeHandler)
+	router.HandleFunc("/ws/", app.websocketUpgradeHandler)
 	router.HandleFunc("/api/highlights/{id}", app.highlightAPIHandler).Methods("GET")
 	router.HandleFunc("/api/highlights", app.dayHighlightsAPIHandler).Queries("day", "{day}").Methods("GET")
 	router.HandleFunc("/api/highlightMirrors", app.highlightMirrorsAPIHandler).Queries("highlightId", "{highlightId}").Methods("GET")

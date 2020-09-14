@@ -35,13 +35,14 @@ type Client struct {
 }
 
 type Submission struct {
-	ID         string
-	URL        string
-	Title      string
-	Permalink  string
-	Author     string
-	IsSelf     bool
-	CreatedUTC int64
+	ID          string
+	URL         string
+	FallbackURL string
+	Title       string
+	Permalink   string
+	Author      string
+	IsSelf      bool
+	CreatedUTC  int64
 }
 
 type Comment struct {
@@ -95,9 +96,17 @@ func (client *Client) GetLatestSoccerSubmissions() ([]Submission, error) {
 	submissions := make([]Submission, len(submissionsJSON))
 	for idx, submissionJSON := range submissionsJSON {
 		submissionJSONMap := submissionJSON.Map()
+
+		fallbackURLResult := submissionJSON.Get("media.reddit_video.fallback_url")
+		fallbackURL := ""
+		if fallbackURLResult.Exists() {
+			fallbackURL = fallbackURLResult.String()
+		}
+
 		submissions[idx] = Submission{
 			submissionJSONMap["id"].String(),
 			submissionJSONMap["url"].String(),
+			fallbackURL,
 			submissionJSONMap["title"].String(),
 			submissionJSONMap["permalink"].String(),
 			submissionJSONMap["author"].String(),

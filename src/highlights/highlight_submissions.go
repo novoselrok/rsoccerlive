@@ -24,6 +24,7 @@ var supportedHighlightHosts = []string{
 	"streamable.com",
 	"streamja.com",
 	"clippituser.tv",
+	"v.redd.it",
 }
 
 var highlightTitleRegexps []*regexp.Regexp = []*regexp.Regexp{
@@ -32,6 +33,7 @@ var highlightTitleRegexps []*regexp.Regexp = []*regexp.Regexp{
 	regexp.MustCompile("goals?"),
 	regexp.MustCompile("penalty"),
 	regexp.MustCompile("(red|yellow)\\s+card"),
+	regexp.MustCompile("free[- ]?kick"),
 }
 
 var redditMarkupUrlRegexps []*regexp.Regexp = []*regexp.Regexp{
@@ -49,16 +51,21 @@ func isHighlightTitle(title string) bool {
 	return false
 }
 
-func isSupportedHighlightURL(highlightURL string) bool {
-	parsedURL, err := url.Parse(highlightURL)
+func getDomain(urlToParse string) string {
+	parsedURL, err := url.Parse(urlToParse)
 	if err != nil {
-		return false
+		return ""
 	}
 
 	highlightHost := parsedURL.Host
 	if strings.HasPrefix(highlightHost, "www.") {
-		highlightHost = highlightHost[4:]
+		return highlightHost[4:]
 	}
+	return highlightHost
+}
+
+func isSupportedHighlightURL(highlightURL string) bool {
+	highlightHost := getDomain(highlightURL)
 
 	for _, supportedHighlightHost := range supportedHighlightHosts {
 		if supportedHighlightHost == highlightHost {
@@ -92,8 +99,14 @@ func GetLatestHighlightSubmissions(redditClient *redditclient.Client) []redditcl
 func ConvertSubmissionsToHighlights(submissions []redditclient.Submission) []models.Highlight {
 	highlights := make([]models.Highlight, len(submissions))
 	for idx, submission := range submissions {
+		url := submission.URL
+		highlightHost := getDomain(submission.URL)
+		if highlightHost == "v.redd.it" {
+			url = submission.FallbackURL
+		}
+
 		highlights[idx] = models.Highlight{
-			URL:                submission.URL,
+			URL:                url,
 			Title:              submission.Title,
 			RedditSubmissionID: submission.ID,
 			RedditPermalink:    submission.Permalink,

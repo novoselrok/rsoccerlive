@@ -2,14 +2,25 @@
   <div class="highlight-video">
     <div style="width:100%; height:0px; position:relative; padding-bottom:56.327%;">
       <iframe
+        v-if="hasEmbedFrame"
         class="highlight-video__frame"
         ref="frame"
         frameborder="0"
-        width="100%"
-        height="100%"
-        allowfullscreen
-        style="width:100%; height:100%; position:absolute;">
+        allowfullscreen>
       </iframe>
+      <div
+        v-else
+        ref="frame"
+        class="highlight-video__frame">
+        <video
+          ref="video"
+          style="display: none"
+          :src="this.url"
+          width="100%"
+          height="100%"
+          controls>
+        </video>
+      </div>
     </div>
   </div>
 </template>
@@ -40,11 +51,17 @@ export default {
       }
       return null
     },
+    hasEmbedFrame () {
+      return this.src !== null
+    },
   },
   methods: {
     loadFrame () {
-      if (!this.$refs.frame.src) {
+      if (this.hasEmbedFrame && !this.$refs.frame.src) {
         this.$refs.frame.src = this.src
+      }
+      if (!this.hasEmbedFrame) {
+        this.$refs.video.style.display = 'block'
       }
     },
   },
@@ -64,5 +81,11 @@ export default {
 <style scoped lang="less">
   .highlight-video {
     background-color: #ccc;
+
+    &__frame {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
   }
 </style>

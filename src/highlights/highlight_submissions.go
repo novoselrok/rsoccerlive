@@ -105,6 +105,11 @@ func ConvertSubmissionsToHighlights(submissions []redditclient.Submission) []mod
 			url = submission.FallbackURL
 		}
 
+		// When v.redd.it videos are not transcoded
+		if len(url) == 0 {
+			continue
+		}
+
 		highlights[idx] = models.Highlight{
 			URL:                url,
 			Title:              submission.Title,

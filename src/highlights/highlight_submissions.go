@@ -97,8 +97,8 @@ func GetLatestHighlightSubmissions(redditClient *redditclient.Client) []redditcl
 }
 
 func ConvertSubmissionsToHighlights(submissions []redditclient.Submission) []models.Highlight {
-	highlights := make([]models.Highlight, len(submissions))
-	for idx, submission := range submissions {
+	highlights := []models.Highlight{}
+	for _, submission := range submissions {
 		url := submission.URL
 		highlightHost := getDomain(submission.URL)
 		if highlightHost == "v.redd.it" {
@@ -110,14 +110,14 @@ func ConvertSubmissionsToHighlights(submissions []redditclient.Submission) []mod
 			continue
 		}
 
-		highlights[idx] = models.Highlight{
+		highlights = append(highlights, models.Highlight{
 			URL:                url,
 			Title:              submission.Title,
 			RedditSubmissionID: submission.ID,
 			RedditPermalink:    submission.Permalink,
 			RedditAuthor:       submission.Author,
 			RedditCreatedAt:    time.Unix(submission.CreatedUTC, 0),
-		}
+		})
 	}
 	return highlights
 }

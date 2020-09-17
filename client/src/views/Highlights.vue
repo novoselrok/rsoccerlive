@@ -26,6 +26,14 @@
         <div class="highlights__days-navigation__custom-day__day" v-if="customDayFormatted">{{ customDayFormatted }}</div>
       </div>
     </div>
+    <div class="highlights__controls">
+      <div class="highlights__controls__smaller-highlights">
+        <input v-model="useSmallerHighlights" type="checkbox" id="smaller-highlights" />
+        <label for="smaller-highlights">
+          Smaller highlights
+        </label>
+      </div>
+    </div>
     <div class="highlights__list">
       <highlight
         v-for="highlight in highlights"
@@ -37,7 +45,8 @@
         :reddit-permalink="highlight.redditPermalink"
         :reddit-author="highlight.redditAuthor"
         :reddit-created-at="highlight.redditCreatedAt"
-        :num-mirrors="highlight.numMirrors">
+        :num-mirrors="highlight.numMirrors"
+        :is-smaller="useSmallerHighlights">
       </highlight>
     </div>
   </div>
@@ -59,6 +68,7 @@ export default {
   data () {
     return {
       day: null,
+      useSmallerHighlights: false,
     }
   },
   methods: {
@@ -84,6 +94,19 @@ export default {
         const frames = document.querySelectorAll('.highlight-video__frame')
         frames.forEach(frame => this.frameObserver.observe(frame))
       })
+    },
+    loadControls () {
+      if (!window.localStorage || !localStorage.getItem('controls')) {
+        return
+      }
+      const controls = JSON.parse(localStorage.getItem('controls'))
+      this.useSmallerHighlights = controls.useSmallerHighlights
+    },
+    saveControls () {
+      if (!window.localStorage) {
+        return
+      }
+      localStorage.setItem('controls', JSON.stringify({ useSmallerHighlights: this.useSmallerHighlights }))
     },
   },
   computed: {
@@ -127,6 +150,9 @@ export default {
     highlights () {
       this.observeHighlightVideoFrames()
     },
+    useSmallerHighlights () {
+      this.saveControls()
+    },
   },
   beforeCreate () {
     const onIntersectionChange = entries => entries.filter(entry => entry.isIntersecting).forEach(entry => entry.target.dispatchEvent(new Event('enteredViewport')))
@@ -139,6 +165,7 @@ export default {
       this.day = today()
     }
     this.fetchHighlights()
+    this.loadControls()
   },
   mounted () {
     this.observeHighlightVideoFrames()
@@ -148,6 +175,17 @@ export default {
 
 <style lang="less">
 .highlights {
+
+  &__controls {
+    margin-bottom: 16px;
+  }
+
+  @media only screen and (max-width: 750px) {
+    &__controls {
+      display: none;
+    }
+  }
+
   &__days-navigation {
     display: flex;
     align-items: center;

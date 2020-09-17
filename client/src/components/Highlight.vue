@@ -1,5 +1,5 @@
 <template>
-  <div class="highlight">
+  <div class="highlight" :class="{ 'highlight--smaller': isSmaller }">
     <highlight-video class="highlight__video" :loading="loading" :url="url"></highlight-video>
     <div class="highlight__meta">
       <div v-if="title" class="highlight__meta__title">
@@ -41,6 +41,7 @@ export default {
     redditAuthor: String,
     redditCreatedAt: String,
     numMirrors: Number,
+    isSmaller: { type: Boolean, default: false },
   },
   computed: {
     redditTimeAgo () {
@@ -74,6 +75,10 @@ export default {
     border: 1px solid #ececf6;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
+
+    &--smaller {
+      width: 350px;
+    }
 
     &__meta {
       padding: 8px;
